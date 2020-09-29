@@ -45,7 +45,7 @@ def mapFeature(X1, X2, degree=6):
         return np.array(out)
 
 
-def plotDecisionBoundary(plotData, theta, X, y):
+def plotDecisionBoundary(plotData, theta, X, y, p):
     """
     Plots the data points X and y into a new figure with the decision boundary defined by theta.
     Plots the data points with * for the positive examples and o for  the negative examples.
@@ -65,6 +65,9 @@ def plotDecisionBoundary(plotData, theta, X, y):
 
     y : array_like
         Vector of data labels of shape (m, ).
+
+    p : float
+        Percentile for boundary
     """
     # make sure theta is a numpy array
     theta = np.array(theta)
@@ -78,12 +81,16 @@ def plotDecisionBoundary(plotData, theta, X, y):
 
         # Calculate the decision boundary line
         plot_y = (-1. / theta[2]) * (theta[1] * plot_x + theta[0])
+        plot_y_1 = (np.log(p/(1-p)) - theta[0] - theta[1] * plot_x) / theta[2]
+        plot_y_2 = (np.log((1-p)/p) - theta[0] - theta[1] * plot_x) / theta[2]
 
         # Plot, and adjust axes for better viewing
         pyplot.plot(plot_x, plot_y)
+        pyplot.plot(plot_x, plot_y_1, '--r')
+        pyplot.plot(plot_x, plot_y_2, '--r')
 
         # Legend, specific for the exercise
-        pyplot.legend(['Admitted', 'Not admitted', 'Decision Boundary'])
+        pyplot.legend(['Admitted', 'Not admitted', 'Decision Boundary', f'{p:.0%}-confidence'])
         pyplot.xlim([30, 100])
         pyplot.ylim([30, 100])
     else:
@@ -100,9 +107,10 @@ def plotDecisionBoundary(plotData, theta, X, y):
         z = z.T  # important to transpose z before calling contour
         # print(z)
 
-        # Plot z = 0
+        # Plot z = 0 and p-percentile
         pyplot.contour(u, v, z, levels=[0], linewidths=2, colors='g')
-        pyplot.contourf(u, v, z, levels=[np.min(z), 0, np.max(z)], cmap='Greens', alpha=0.4)
+        pyplot.contour(u, v, z, levels=[np.log((1-p)/p), np.log(p/(1-p))], linewidths=2, linestyles='dashed', colors='r')
+        # pyplot.contourf(u, v, z, levels=[np.min(z), 0, np.max(z)], cmap='Greens', alpha=0.4)
 
 
 class Grader(SubmissionBase):
